@@ -36,14 +36,18 @@ def ingrid(x, y):
     return all([x >= 0, y >= 0, x < w, y < h])
 
 
-def solve(cx, cy, d, grid, visited, nvisit, checking, loopboxes):
+def solve(cx, cy, d, grid, visited, nvisit, checking, loopboxes, exx, exy):
     cycles = 0
+    hit_ex_count = 0
 
     while ingrid(cx, cy):
 
+        if dstr[d] in visited[cx][cy]:
+            return -1
+
         if checking:
             if dstr[d] in nvisit[cx][cy]:
-                return -1
+                return (-1 - hit_ex_count)
             else:
                 nvisit[cx][cy] += dstr[d]
         else:
@@ -59,16 +63,19 @@ def solve(cx, cy, d, grid, visited, nvisit, checking, loopboxes):
 
             # If nx, ny in grid make sure it isn't an obstacle
             if ingrid(nx, ny):
-                if grid[nx][ny] != "#":
+
+                hitex = False
+                if all([checking, nx == exx, ny == exy]):
+                    hit_ex_count += 1
+                    hitex = True
+                if grid[nx][ny] != "#" and not hitex:
                     good = True
 
                     if not checking:
                         if visited[nx][ny] == "":
                             if loopboxes[nx][ny] != '#':
                                 nvisit = copy.deepcopy(visited)
-                                ngrid = copy.deepcopy(grid)
-                                ngrid[nx][ny] = '#'
-                                esc = solve(cx, cy, (d + 1) % 4, ngrid, visited, nvisit, True, loopboxes)
+                                esc = solve(cx, cy, (d + 1) % 4, grid, visited, nvisit, True, loopboxes, nx, ny)
 
                                 if esc < 0:
                                     loopboxes[nx][ny] = '#'
@@ -95,6 +102,6 @@ visited = copy.deepcopy(blank)
 nvisit = copy.deepcopy(blank)
 loopboxes = copy.deepcopy(grid)
 
-cycles = solve(sx, sy, sd, grid, visited, nvisit, False, loopboxes)
+cycles = solve(sx, sy, sd, grid, visited, nvisit, False, loopboxes, -1, -1)
 
 print(cycles)
