@@ -98,10 +98,15 @@ def solve_mitm(grid, l):
 
 
 #print_grid(grid, 1024)
-for l in range(1024, len(corrupt)):
-    cansolve = solve_mitm(grid, l)
-    #print(f"limit {l} can be solved: {cansolve}")
-    if not cansolve:
-        print(f"Failed to solve at limit {l} with corrupt byte {corrupt[l - 1]}")
-        break
+l, u = 1024, len(corrupt)
+while l < u:
+    m = l + ((u - l) // 2)
 
+    cansolve = solve_mitm(grid, m)
+
+    if cansolve:
+        l = m + 1
+    else:
+        u = m
+
+print(f"Failed to solve at limit {l} with corrupt byte {corrupt[l - 1]}")
